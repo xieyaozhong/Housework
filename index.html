@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17231d">
+  <meta name="description" content="選擇家事項目，跟著圓形倒數完成，再用四級檢核表確認成果。">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="家事模擬器">
+  <title>家事模擬器</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="background-orb orb-one" aria-hidden="true"></div>
+  <div class="background-orb orb-two" aria-hidden="true"></div>
+
+  <main class="app-shell">
+    <header class="app-header">
+      <button id="homeButton" class="brand-button" type="button" aria-label="回到家事選擇">
+        <span class="brand-mark" aria-hidden="true">⌂</span>
+        <span><small>HOUSEWORK</small><strong>家事模擬器</strong></span>
+      </button>
+      <button id="historyButton" class="round-button" type="button" aria-label="查看紀錄">↺</button>
+    </header>
+
+    <section id="setupScreen" class="screen active" aria-labelledby="setupTitle">
+      <div class="hero-panel">
+        <p class="eyebrow">今天的家事回合</p>
+        <h1 id="setupTitle">選好任務，讓家裡慢慢恢復舒服</h1>
+        <p>開始後，中央會提示目前要做的家事，外圈同步倒數。提早完成時，輕按中央兩下即可進入下一項。</p>
+      </div>
+
+      <div class="setup-controls">
+        <label class="select-field">
+          <span>每項時間</span>
+          <select id="durationSelect">
+            <option value="60">1 分鐘</option>
+            <option value="180">3 分鐘</option>
+            <option value="300" selected>5 分鐘</option>
+            <option value="600">10 分鐘</option>
+            <option value="900">15 分鐘</option>
+            <option value="1200">20 分鐘</option>
+          </select>
+        </label>
+        <div class="control-buttons">
+          <button id="selectAllButton" class="text-button" type="button">全選</button>
+          <button id="clearAllButton" class="text-button" type="button">清除</button>
+        </div>
+      </div>
+
+      <div id="taskCategories" class="category-list"></div>
+
+      <div class="bottom-action">
+        <div class="selection-summary" aria-live="polite">
+          <strong id="selectedCount">0</strong><span>項</span>
+          <span class="dot">·</span>
+          <span id="selectedDuration">約 0 分鐘</span>
+        </div>
+        <button id="startButton" class="primary-button" type="button" disabled>開始家事回合</button>
+      </div>
+    </section>
+
+    <section id="timerScreen" class="screen" aria-labelledby="currentTaskName">
+      <div class="timer-topbar">
+        <button id="backButton" class="round-button subtle" type="button" aria-label="返回任務選擇">←</button>
+        <div class="task-progress-copy">
+          <strong id="taskPosition">第 1 項，共 1 項</strong>
+          <div class="progress-line" aria-hidden="true"><span id="miniProgressFill"></span></div>
+        </div>
+        <button id="pauseButton" class="round-button subtle" type="button" aria-label="暫停計時">Ⅱ</button>
+      </div>
+
+      <button id="timerStage" class="timer-stage" type="button" aria-label="輕按兩下完成目前家事">
+        <svg class="timer-ring" viewBox="0 0 300 300" aria-hidden="true">
+          <circle class="timer-track" cx="150" cy="150" r="132"></circle>
+          <circle id="timerRingProgress" class="timer-progress" cx="150" cy="150" r="132"></circle>
+        </svg>
+        <span class="timer-content">
+          <span id="currentTaskIcon" class="task-icon" aria-hidden="true">🧹</span>
+          <span id="currentCategory" class="task-category">清潔類</span>
+          <strong id="currentTaskName" class="task-name">打掃</strong>
+          <span id="currentTaskPrompt" class="task-prompt">把看得見的灰塵、頭髮與碎屑清乾淨</span>
+          <time id="timeRemaining" class="time-remaining">05:00</time>
+          <span id="doubleTapHint" class="tap-hint">輕按兩下，提早完成</span>
+        </span>
+      </button>
+
+      <div class="timer-actions">
+        <button id="restartTaskButton" class="secondary-button" type="button">重新計時</button>
+        <button id="finishTaskButton" class="primary-button compact" type="button">完成這一項</button>
+      </div>
+    </section>
+
+    <section id="reviewScreen" class="screen" aria-labelledby="reviewTitle">
+      <div class="section-heading">
+        <p class="eyebrow">家事檢核表</p>
+        <h1 id="reviewTitle">看看成果落在哪一級</h1>
+        <p>每項家事都有四個不同完成效果。選擇最接近現在狀況的描述。</p>
+      </div>
+      <form id="reviewForm">
+        <div id="reviewList" class="review-list"></div>
+        <button class="primary-button full-width" type="submit">完成檢核</button>
+      </form>
+    </section>
+
+    <section id="summaryScreen" class="screen" aria-labelledby="summaryTitle">
+      <div class="summary-panel">
+        <div id="summaryMedal" class="summary-medal" aria-hidden="true">✦</div>
+        <p class="eyebrow">回合完成</p>
+        <h1 id="summaryTitle">今天的家事完成了</h1>
+        <p id="summaryMessage">你讓生活空間往舒服的方向前進了一點。</p>
+        <div id="scoreGrid" class="score-grid"></div>
+        <div class="summary-actions">
+          <button id="newRoundButton" class="primary-button" type="button">開始新回合</button>
+          <button id="reviewAgainButton" class="secondary-button" type="button">重新查看檢核</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="historyDialog" class="history-dialog">
+    <div class="dialog-header">
+      <div><p class="eyebrow">最近紀錄</p><h2>家事回合</h2></div>
+      <button id="closeHistoryButton" class="round-button" type="button" aria-label="關閉">×</button>
+    </div>
+    <div id="historyList" class="history-list"></div>
+    <button id="clearHistoryButton" class="danger-button" type="button">清除所有紀錄</button>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js" defer></script>
+</body>
+</html>

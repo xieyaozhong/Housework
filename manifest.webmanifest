@@ -1,0 +1,15 @@
+{
+  "name": "家事模擬器",
+  "short_name": "家事模擬器",
+  "description": "選擇家事、倒數完成，再用四級檢核表確認成果。",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101713",
+  "theme_color": "#17231d",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
