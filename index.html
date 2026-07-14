@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#17231d">
-  <meta name="description" content="選擇家事項目，跟著圓形倒數完成，再用四級檢核表確認成果。">
+  <meta name="theme-color" content="#101713">
+  <meta name="description" content="選擇家事項目，跟著立體倒數核心完成，再用四級檢核表確認成果。">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="家事模擬器">
@@ -14,39 +14,74 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <div class="ambient-grid" aria-hidden="true"></div>
   <div class="background-orb orb-one" aria-hidden="true"></div>
   <div class="background-orb orb-two" aria-hidden="true"></div>
 
   <main class="app-shell">
     <header class="app-header">
       <button id="homeButton" class="brand-button" type="button" aria-label="回到家事選擇">
-        <span class="brand-mark" aria-hidden="true">⌂</span>
-        <span><small>HOUSEWORK</small><strong>家事模擬器</strong></span>
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span><small>HOUSEWORK OS</small><strong>家事模擬器</strong></span>
       </button>
-      <button id="historyButton" class="round-button" type="button" aria-label="查看紀錄">↺</button>
+      <button id="historyButton" class="round-button" type="button" aria-label="查看紀錄"><span aria-hidden="true">↺</span></button>
     </header>
 
     <section id="setupScreen" class="screen active" aria-labelledby="setupTitle">
       <div class="hero-panel">
-        <p class="eyebrow">今天的家事回合</p>
-        <h1 id="setupTitle">選好任務，讓家裡慢慢恢復舒服</h1>
-        <p>開始後，中央會提示目前要做的家事，外圈同步倒數。提早完成時，輕按中央兩下即可進入下一項。</p>
+        <div class="hero-copy">
+          <p class="eyebrow">HOME MISSION CONTROL</p>
+          <h1 id="setupTitle">把家裡拆成一個個可完成的任務</h1>
+          <p>選擇區域與家事，中央任務核心會帶你依序完成。提早做完時，輕按核心兩下即可前進。</p>
+          <div class="hero-stats">
+            <span><strong>34</strong>預設任務</span>
+            <span><strong>5</strong>生活區域</span>
+            <span><strong>∞</strong>自訂項目</span>
+          </div>
+        </div>
+        <div class="room-model" aria-hidden="true">
+          <div class="room-floor"></div>
+          <div class="room-wall wall-left"></div>
+          <div class="room-wall wall-right"></div>
+          <div class="model-sofa"><i></i><i></i></div>
+          <div class="model-table"><span></span></div>
+          <div class="model-plant"><i></i><i></i><i></i></div>
+          <div class="model-lamp"><i></i></div>
+          <div class="model-glow"></div>
+        </div>
       </div>
+
+      <div class="mission-tools">
+        <label class="search-field">
+          <span aria-hidden="true">⌕</span>
+          <input id="taskSearch" type="search" placeholder="搜尋家事、房間或用途" autocomplete="off">
+        </label>
+        <button id="customTaskButton" class="secondary-button add-task-button" type="button">＋ 自訂家事</button>
+      </div>
+
+      <div class="preset-section">
+        <div class="section-label"><span>快速模式</span><small>一鍵建立任務列</small></div>
+        <div id="presetList" class="preset-list"></div>
+      </div>
+
+      <div id="queuePreview" class="queue-preview" aria-live="polite"></div>
 
       <div class="setup-controls">
         <label class="select-field">
           <span>每項時間</span>
           <select id="durationSelect">
             <option value="60">1 分鐘</option>
+            <option value="120">2 分鐘</option>
             <option value="180">3 分鐘</option>
             <option value="300" selected>5 分鐘</option>
             <option value="600">10 分鐘</option>
             <option value="900">15 分鐘</option>
             <option value="1200">20 分鐘</option>
+            <option value="1800">30 分鐘</option>
           </select>
         </label>
         <div class="control-buttons">
-          <button id="selectAllButton" class="text-button" type="button">全選</button>
+          <button id="selectAllButton" class="text-button" type="button">全部選取</button>
           <button id="clearAllButton" class="text-button" type="button">清除</button>
         </div>
       </div>
@@ -55,11 +90,11 @@
 
       <div class="bottom-action">
         <div class="selection-summary" aria-live="polite">
-          <strong id="selectedCount">0</strong><span>項</span>
+          <strong id="selectedCount">0</strong><span>項任務</span>
           <span class="dot">·</span>
           <span id="selectedDuration">約 0 分鐘</span>
         </div>
-        <button id="startButton" class="primary-button" type="button" disabled>開始家事回合</button>
+        <button id="startButton" class="primary-button" type="button" disabled>啟動任務核心</button>
       </div>
     </section>
 
@@ -74,14 +109,21 @@
       </div>
 
       <button id="timerStage" class="timer-stage" type="button" aria-label="輕按兩下完成目前家事">
+        <span class="orbit orbit-one" aria-hidden="true"><i></i></span>
+        <span class="orbit orbit-two" aria-hidden="true"><i></i></span>
         <svg class="timer-ring" viewBox="0 0 300 300" aria-hidden="true">
+          <defs>
+            <filter id="ringGlow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
           <circle class="timer-track" cx="150" cy="150" r="132"></circle>
-          <circle id="timerRingProgress" class="timer-progress" cx="150" cy="150" r="132"></circle>
+          <circle id="timerRingProgress" class="timer-progress" cx="150" cy="150" r="132" filter="url(#ringGlow)"></circle>
         </svg>
+        <span class="core-shell" aria-hidden="true"><i></i><b></b></span>
         <span class="timer-content">
           <span id="currentTaskIcon" class="task-icon" aria-hidden="true">🧹</span>
           <span id="currentCategory" class="task-category">清潔類</span>
-          <strong id="currentTaskName" class="task-name">打掃</strong>
+          <span id="currentTaskRoom" class="task-room">全屋 · 強度 ●●</span>
+          <strong id="currentTaskName" class="task-name">打掃地板</strong>
           <span id="currentTaskPrompt" class="task-prompt">把看得見的灰塵、頭髮與碎屑清乾淨</span>
           <time id="timeRemaining" class="time-remaining">05:00</time>
           <span id="doubleTapHint" class="tap-hint">輕按兩下，提早完成</span>
@@ -96,9 +138,9 @@
 
     <section id="reviewScreen" class="screen" aria-labelledby="reviewTitle">
       <div class="section-heading">
-        <p class="eyebrow">家事檢核表</p>
-        <h1 id="reviewTitle">看看成果落在哪一級</h1>
-        <p>每項家事都有四個不同完成效果。選擇最接近現在狀況的描述。</p>
+        <p class="eyebrow">MISSION REVIEW</p>
+        <h1 id="reviewTitle">檢查每一個任務的完成效果</h1>
+        <p>不用勉強打高分。選擇最接近現況的描述，系統會保存這次家事回合。</p>
       </div>
       <form id="reviewForm">
         <div id="reviewList" class="review-list"></div>
@@ -108,8 +150,8 @@
 
     <section id="summaryScreen" class="screen" aria-labelledby="summaryTitle">
       <div class="summary-panel">
-        <div id="summaryMedal" class="summary-medal" aria-hidden="true">✦</div>
-        <p class="eyebrow">回合完成</p>
+        <div class="summary-model" aria-hidden="true"><span id="summaryMedal">✦</span><i></i><b></b></div>
+        <p class="eyebrow">ROUND COMPLETE</p>
         <h1 id="summaryTitle">今天的家事完成了</h1>
         <p id="summaryMessage">你讓生活空間往舒服的方向前進了一點。</p>
         <div id="scoreGrid" class="score-grid"></div>
@@ -121,9 +163,27 @@
     </section>
   </main>
 
-  <dialog id="historyDialog" class="history-dialog">
+  <dialog id="customTaskDialog" class="app-dialog">
     <div class="dialog-header">
-      <div><p class="eyebrow">最近紀錄</p><h2>家事回合</h2></div>
+      <div><p class="eyebrow">CUSTOM MISSION</p><h2>建立自訂家事</h2></div>
+      <button id="closeCustomTaskButton" class="round-button" type="button" aria-label="關閉">×</button>
+    </div>
+    <form id="customTaskForm" class="custom-task-form">
+      <div class="form-row two-columns">
+        <label><span>圖示</span><input name="icon" value="✦" maxlength="4"></label>
+        <label><span>強度</span><select name="effort"><option value="1">● 輕鬆</option><option value="2">●● 一般</option><option value="3">●●● 費力</option></select></label>
+      </div>
+      <label><span>家事名稱</span><input name="name" required maxlength="24" placeholder="例如：整理咖啡器具"></label>
+      <label><span>所在區域</span><input name="room" maxlength="16" placeholder="例如：廚房"></label>
+      <label><span>卡片說明</span><input name="short" maxlength="36" placeholder="簡短說明這項家事"></label>
+      <label><span>進行時提示</span><textarea name="prompt" rows="3" maxlength="100" placeholder="計時時要顯示的操作提示"></textarea></label>
+      <button class="primary-button full-width" type="submit">新增並選取</button>
+    </form>
+  </dialog>
+
+  <dialog id="historyDialog" class="app-dialog history-dialog">
+    <div class="dialog-header">
+      <div><p class="eyebrow">RECENT ROUNDS</p><h2>家事紀錄</h2></div>
       <button id="closeHistoryButton" class="round-button" type="button" aria-label="關閉">×</button>
     </div>
     <div id="historyList" class="history-list"></div>
