@@ -6,7 +6,10 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5efe3",
-  "theme_color": "#f5efe3",
-  "orientation": "portrait-primary"
+  "background_color": "#101713",
+  "theme_color": "#17231d",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
 }
